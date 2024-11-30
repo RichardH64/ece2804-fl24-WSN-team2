@@ -4,8 +4,12 @@
 //===BEGIN PROGRAM===//
 int pwmValue = 100;                         // Start with 50% duty cycle
 unsigned long previousFeedbackMillis = 0;
+volatile bool enableLPM = false;
 
 void setupTimer1();
+
+void enableTimer1();
+void disableTimer1();
 
 void PWM_run();
 
@@ -15,14 +19,12 @@ void setup() {
   pinMode(PWM_PIN2, OUTPUT);
 
   setupTimer1();
+
+  sei();
 } 
 
 void loop() {
-  unsigned long currentMillis = millis(); 
-  if (currentMillis - previousFeedbackMillis >= PWM_INTERVAL) {
-    previousFeedbackMillis = currentMillis;
-    PWM_run();
-  }
+
 }
 
 void setupTimer1() {
@@ -37,6 +39,30 @@ void setupTimer1() {
 
   // Set TOP value to 249 for exact 64kHz
   ICR1 = 249;  
+
+  TIMSK1 = (1 << OCIE1A);
+}
+
+void enableTimer1() {
+  // Stop Timer1
+  TCCR1A = 0;
+  TCCR1B = 0;
+
+  // Set Fast PWM mode, no prescaler (CS10 = 1)
+  // WGM13 = 1, WGM12 = 1, WGM11 = 1, WGM10 = 0
+  TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << WGM11);
+  TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS10);
+
+  // Set TOP value to 249 for exact 64kHz
+  ICR1 = 249;  
+
+  TIMSK1 = (1 << OCIE1A);
+}
+
+void disableTimer1() {
+  TCCR1A = 0;
+  TCCR1B = 0;
+  TIMSK1 = 0;
 }
 
 void PWM_run() {
@@ -57,4 +83,10 @@ void PWM_run() {
   pwmValue = constrain(pwmValue, PWM_MIN, PWM_MAX);                                 // Step 4:  Constrain PWM value between MINPWM and MAXPWM
   OCR1A = pwmValue;                                                                 // Step 5A: Update Compare Match Values (Update duty cycle for Pin 9)
   OCR1B = pwmValue;                                                               // Step 5B: Update Compare Match Values (Update duty cycle for Pin 10)
+}
+
+ISR(TIMER1_COMPA_vect){
+  if (enableLPM) {
+    PWM_run();
+  }
 }
