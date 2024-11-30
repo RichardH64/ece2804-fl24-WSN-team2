@@ -2,6 +2,7 @@
 #include <SoftwareSerial.h>
 
 //===BEGIN PROGRAM===//
+int pwmValue = 124;                         // Start with 50% duty cycle
 bool isInLowPowerMode = false;
 SoftwareSerial bluetooth(BT_RXDPIN, BT_TXDPIN);   // RX, TX
 
@@ -24,8 +25,8 @@ void setup() {
   pinMode(PWM_VOLTAGEPIN, INPUT);
   pinMode(BT_VOLTAGEPIN, INPUT);
   pinMode(SOLAR_VOLTAGEPIN, INPUT);
-  pinMode(PWMPIN1, OUTPUT);
-  pinMode(PWMPIN2, OUTPUT);
+  pinMode(PWM_PIN1, OUTPUT);
+  pinMode(PWM_PIN2, OUTPUT);
 
   setupTimer1();
   setupTImer2();
@@ -70,7 +71,7 @@ void setupTimer1() {
 }
 
 void setupTImer2() {
-  overflowCount = 0;                                                            // Reset overflow counter
+  timer2_OverflowCount = 0;                                                            // Reset overflow counter
   TCCR2A = 0;                                                                   // Set Timer2 to Normal Mode (overflow interrupt)
   TCCR2B = 0;                                                                   // Refresh
   TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20);                             // Set the prescaler to 1024
@@ -85,7 +86,7 @@ float getTemperature() {
   float R2 = BT_R1 * (5.0 / voltage - 1);
 
   float logR2 = log(R2);
-  float temperatureK = 1.0 / (C1 + C2 * logR2 + C3 * logR2 * logR2 * logR2);
+  float temperatureK = 1.0 / (BT_C1 + BT_C2 * logR2 + BT_C3 * logR2 * logR2 * logR2);
 
   return temperatureK;
 }
@@ -102,15 +103,15 @@ void checkLowPowerMode() {
   if (voltage <= SOLAR_VOLTAGETHRESHOLDDOWN) {
     isInLowPowerMode = true;
   }
-  else if (volateg >= SOLAR_VOLTAGETHRESHOLDUP) {
+  else if (voltage >= SOLAR_VOLTAGETHRESHOLDUP) {
     isInLowPowerMode = false;
   }
 }
 
 void PWM_run() {
-  int sensorValue = analogRead(VOLTAGEPIN);                                     // Step 1:  Read the voltage from the A0 pin (after the voltage divider)
+  int sensorValue = analogRead(PWM_VOLTAGEPIN);                                     // Step 1:  Read the voltage from the A0 pin (after the voltage divider)
   float measuredVoltageAtA0 = (sensorValue * 5.0) / 1023.0;                     // Step 2A: Convert the analog reading (0-1023) to voltage
-  float measuredOutputVoltage = measuredVoltageAtA0 / VOLTAGEDIVIDERRATIO;      // Step 2B: Convert the measured voltage to the actual voltage
+  float measuredOutputVoltage = measuredVoltageAtA0 / PWM_VOLTAGEDIVIDERRATIO;      // Step 2B: Convert the measured voltage to the actual voltage
 
   if (measuredOutputVoltage < PWM_VOLTAGETHRESHOLDDOWN) {                       // Step 3:  Adjust the PWM duty cycle
     pwmValue += 1; // Increase duty cycle
