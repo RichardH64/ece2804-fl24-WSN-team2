@@ -2,7 +2,7 @@
 #define WSN_LIBRARY_H
 
 //===PWM Constants===//
-#define PWM_VOLTAGEPIN                  (uint8_t)                    A5 // Pin to read the voltage from the voltage divider
+#define PWM_VOLTAGEPIN                  (uint8_t)                    A0 // Pin to read the voltage from the voltage divider
 #define PWM_PIN1                        (uint8_t)                     9 // PWM output pin to control MOSFET (OC1A)
 #define PWM_PIN2                        (uint8_t)                    10 // Secondary PWM pin (OC1B)
 #define PWM_MIN                         (int)                        50 // Minimum PWM for 20% duty cycle
@@ -27,8 +27,8 @@
 
 //===Sleep Mode constants===//
 #define SOLAR_VOLTAGEPIN                (uint8_t)                    A2      // Pin to read the voltage from the solar panel
-#define SOLAR_VOLTAGEDIVIDERRATIO       (float) 120.0 / (220.0 + 120.0) // Voltage divider constants (for R3 = 220kΩ, R4 = 120kΩ // = 0.353
+#define SOLAR_VOLTAGEDIVIDERRATIO       (float)            0.3529411765 // Voltage divider constants (for R3 = 220kΩ, R4 = 120kΩ // = 0.353
 #define SOLAR_VOLTAGETHRESHOLDDOWN      (float)                    3.65 // Voltage Threshold before going low power
-#define SOLAR_VOLTAGETHRESHOLDUP        (float)                    4.10 // 
+#define SOLAR_VOLTAGETHRESHOLDUP        (float)                    4.00 // 
 
 #endif
