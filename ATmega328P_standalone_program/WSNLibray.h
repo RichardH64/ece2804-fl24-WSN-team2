@@ -10,6 +10,8 @@
 #define PWM_VOLTAGEDIVIDERRATIO         (float)      8.2 / (33.0 + 8.2) // Voltage divider constants (for R3 = 33kΩ, R4 = 8.2kΩ // = 0.2 
 #define PWM_LOWVOLTAGETHRESHOLD         (float)                     6.5 // If voltage drops below this, reset PWM
 #define PWM_TARGETVOLTAGE               (float)                    10.5 // Desired output voltage
+#define PWM_VOLTAGETHRESHOLDDOWN        (float)                   10.45 // 
+#define PWM_VOLTAGETHRESHOLDUP          (float)                   10.60 //
 
 //===Bluetooth & Thermistor Constants===/
 #define BT_VOLTAGEPIN                   (uint8_t)                    A1 // Pin connected to the voltage divider for temperature
@@ -25,13 +27,10 @@
 #define SOLAR_VOLTAGEPIN                (uint8_t)               A2      // Pin to read the voltage from the solar panel
 #define SOLAR_VOLTAGEDIVIDERRATIO       (float) 120.0 / (220.0 + 120.0) // Voltage divider constants (for R3 = 220kΩ, R4 = 120kΩ // = 0.353
 #define SOLAR_VOLTAGETHRESHOLDDOWN      (float)                    3.65 // Voltage Threshold before going low power
-#define SOLAR_VOLTAGETHRESHOLDUP        (float)                    4.10 //
-
-
+#define SOLAR_VOLTAGETHRESHOLDUP        (float)                    4.10 // 
 
 //===Time Controls (Non Power-Save)===/
 #define FEEDBACKINTERVAL                (unsigned long)              50 // 50 ms for boost converter feedback
 #define BLUETOOTHINTERVAL               (unsigned long)            1000 // 1000 ms (1 second) for Bluetooth transmission
-
 
 #endif
