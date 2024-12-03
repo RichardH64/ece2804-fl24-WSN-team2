@@ -19,6 +19,8 @@ void setupTimer2();
 void enableTimer1();
 void disableTimer1();
 
+void handleBluetoothPower(bool powerOn);
+
 float getTemperature();
 float getSolarVoltage();
 
@@ -48,7 +50,9 @@ void loop() {
   if (isInLowPowerMode) {
     if (timer2_30SecondsPassed) { // Ends the loop prematurely
       timer2_30SecondsPassed = false;
+      handleBluetoothPower(true);
       BT_run();
+      handleBluetoothPower(false);
     }
     enterLowPowerMode();
     return;
@@ -115,6 +119,17 @@ void disableTimer1() {
   OCR1B = 0;
 }
 
+void handleBluetoothPower(bool powerOn) {
+  if (powerOn) {
+    bluetooth.write("AT+RESET\r\n");
+    delay(100); 
+  } 
+  else {
+    bluetooth.write("AT+SLEEP\r\n");
+    delay(100);
+  }
+}
+
 float getTemperature() {
   int sensorValue = analogRead(BT_VOLTAGEPIN);
   float measuredVoltage = (sensorValue * 5.0) / 1023.0;
@@ -136,16 +151,18 @@ float getSolarVoltage() {
 
 void checkLowPowerMode() {
   float voltage = getSolarVoltage();
-  if (voltage < SOLAR_VOLTAGETHRESHOLDDOWN) {
+  if (voltage <= SOLAR_VOLTAGETHRESHOLDDOWN) {
     isInLowPowerMode = true;
     timer1AlreadyEnabled = false;
     disableTimer1();
+    handleBluetoothPower(false);
   }
   else if (voltage > SOLAR_VOLTAGETHRESHOLDUP){
     isInLowPowerMode = false;
     if (!timer1AlreadyEnabled) { // So that Timer1 Isn't constantly enabling
       timer1AlreadyEnabled = true;
       enableTimer1();
+      handleBluetoothPower(true);
     }
   }
 }
